@@ -1,6 +1,8 @@
 package control;
 
 import com.google.gson.JsonObject;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -38,7 +40,7 @@ public class Controller implements Initializable {
         return button1;
     }
 
-    final int GROUP_COUNT_TO_RECORD = 10;
+    final int GROUP_COUNT_TO_RECORD = 2;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -48,34 +50,33 @@ public class Controller implements Initializable {
     }
 
     public void UpdateData(MouseEvent mouseEvent) {
-        int RecordedGroupCount = 0;
+        int recordedGroupCount = 0;
         ProgressBar1.setProgress(0);
         DatabaseController.deleteTable();
         DatabaseController.createTable();
         List<Integer> groupsIds = VKRequestAPI.getUserGroupsIds(0, GROUP_COUNT_TO_RECORD);
         for (int groupId : groupsIds) {
             insertRecordInDataBase(String.valueOf(groupId));
-            ProgressBar1.setProgress((float) ++RecordedGroupCount / (float) GROUP_COUNT_TO_RECORD);
-            AnchorPane.requestLayout();
+            final int finalRecordedGroupCount = recordedGroupCount++;
+            Platform.runLater(() -> {
+                ProgressBar1.setProgress((float) finalRecordedGroupCount / (float) GROUP_COUNT_TO_RECORD);
+                AnchorPane.requestLayout();
+            });
         }
         ProgressBar1.setProgress(0);
     }
 
     public void insertRecordInDataBase(final String groupId){
         final Integer groupMembersCount = VKRequestAPI.getGroupMembersCount(String.valueOf(groupId));
-        List<JsonObject> InfoObjects = null;
         ProgressBar2.setProgress(0);
         for (int offset = 0; offset < groupMembersCount; offset+=25000) {
-            InfoObjects = VKRequestAPI.getGroupMembersInfoObjects(offset, groupId);
-            ProgressBar2.setProgress((float) offset / (float) groupMembersCount);
-            AnchorPane.requestLayout();
-        }
-        for (JsonObject InfoObject : InfoObjects) {
-            try {
-                DatabaseController.insertRecord(new User(InfoObject), groupId);
-            } catch (Exception e) {
-                System.err.println("Ошибка при преобразовании InfoObject в User");
-            }
+            final List<List<JsonObject>> InfoObjects = VKRequestAPI.getGroupMembersInfoObjects(offset, groupId);
+            DatabaseController.insertAll(InfoObjects, groupId);
+            final int finalOffset = offset;
+            Platform.runLater(() -> {
+                ProgressBar2.setProgress((float) finalOffset / (float) groupMembersCount);
+                AnchorPane.requestLayout();
+            });
         }
         ProgressBar2.setProgress(0);
     }

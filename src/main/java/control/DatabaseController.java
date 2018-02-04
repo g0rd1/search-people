@@ -1,5 +1,7 @@
 package control;
 
+import com.google.gson.JsonObject;
+import javafx.concurrent.Task;
 import model.Base;
 import model.User;
 import org.hsqldb.Database;
@@ -7,6 +9,7 @@ import org.hsqldb.Table;
 
 import java.io.File;
 import java.sql.*;
+import java.util.List;
 
 public class DatabaseController {
 
@@ -88,6 +91,25 @@ public class DatabaseController {
         } catch (SQLException e) {
             System.err.println("Ошибка при записи данных в таблицу!");
         }
+    }
+
+    public static void insertAll(final List<List<JsonObject>> infoObjects, final String groupId){
+        Task task = new Task() {
+            @Override
+            protected Object call() {
+                for (List<JsonObject> objectList : infoObjects) {
+                    for (JsonObject infoObject : objectList) {
+                        try {
+                            insertRecord(new User(infoObject), groupId);
+                        } catch (Exception e) {
+                            System.err.println("Ошибка при преобразовании InfoObject в User");
+                        }
+                    }
+                }
+                return null;
+            }
+        };
+        new Thread(task).start();
     }
 
     public static void closeConnection(){
