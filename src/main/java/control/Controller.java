@@ -14,6 +14,7 @@ import model.*;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.Future;
 
 public class Controller implements Initializable {
 
@@ -40,7 +41,7 @@ public class Controller implements Initializable {
         return button1;
     }
 
-    final int GROUP_COUNT_TO_RECORD = 2;
+    final int GROUP_COUNT_TO_RECORD = 5;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -50,34 +51,40 @@ public class Controller implements Initializable {
     }
 
     public void UpdateData(MouseEvent mouseEvent) {
-        int recordedGroupCount = 0;
-        ProgressBar1.setProgress(0);
-        DatabaseController.deleteTable();
-        DatabaseController.createTable();
-        List<Integer> groupsIds = VKRequestAPI.getUserGroupsIds(0, GROUP_COUNT_TO_RECORD);
-        for (int groupId : groupsIds) {
-            insertRecordInDataBase(String.valueOf(groupId));
-            final int finalRecordedGroupCount = recordedGroupCount++;
-            Platform.runLater(() -> {
-                ProgressBar1.setProgress((float) finalRecordedGroupCount / (float) GROUP_COUNT_TO_RECORD);
-                AnchorPane.requestLayout();
-            });
-        }
-        ProgressBar1.setProgress(0);
+        Task task = new Task() {
+            @Override
+            protected Object call() {
+                int recordedGroupCount = 0;
+                ProgressBar1.setProgress(0);
+                DatabaseController.deleteTable();
+                DatabaseController.createTable();
+                List<Integer> groupsIds = VKRequestAPI.getUserGroupsIds(0, GROUP_COUNT_TO_RECORD);
+                for (int groupId : groupsIds) {
+                    insertRecordInDataBase(String.valueOf(groupId));
+                    final int finalRecordedGroupCount = recordedGroupCount++;
+                    ProgressBar1.setProgress((float) finalRecordedGroupCount / (float) GROUP_COUNT_TO_RECORD);
+                    AnchorPane.requestLayout();
+                }
+                ProgressBar1.setProgress(0);
+                return null;
+            }
+        };
+        Thread thread = new Thread(task);
+        thread.start();
+//        thread.join();
     }
 
     public void insertRecordInDataBase(final String groupId){
         final Integer groupMembersCount = VKRequestAPI.getGroupMembersCount(String.valueOf(groupId));
         ProgressBar2.setProgress(0);
         for (int offset = 0; offset < groupMembersCount; offset+=25000) {
-            final List<List<JsonObject>> InfoObjects = VKRequestAPI.getGroupMembersInfoObjects(offset, groupId);
-            DatabaseController.insertAll(InfoObjects, groupId);
             final int finalOffset = offset;
-            Platform.runLater(() -> {
-                ProgressBar2.setProgress((float) finalOffset / (float) groupMembersCount);
-                AnchorPane.requestLayout();
-            });
+            final List<List<JsonObject>> InfoObjects = VKRequestAPI.getGroupMembersInfoObjects(finalOffset, groupId);
+            DatabaseController.insertAll(InfoObjects, groupId);
+            ProgressBar2.setProgress((float) finalOffset / (float) groupMembersCount);
+            AnchorPane.requestLayout();
         }
         ProgressBar2.setProgress(0);
     }
+
 }

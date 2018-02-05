@@ -94,22 +94,15 @@ public class DatabaseController {
     }
 
     public static void insertAll(final List<List<JsonObject>> infoObjects, final String groupId){
-        Task task = new Task() {
-            @Override
-            protected Object call() {
-                for (List<JsonObject> objectList : infoObjects) {
-                    for (JsonObject infoObject : objectList) {
-                        try {
-                            insertRecord(new User(infoObject), groupId);
-                        } catch (Exception e) {
-                            System.err.println("Ошибка при преобразовании InfoObject в User");
-                        }
-                    }
+        for (List<JsonObject> objectList : infoObjects) {
+            for (JsonObject infoObject : objectList) {
+                try {
+                    insertRecord(new User(infoObject), groupId);
+                } catch (Exception e) {
+                    System.err.println("Ошибка при преобразовании InfoObject в User");
                 }
-                return null;
             }
-        };
-        new Thread(task).start();
+        }
     }
 
     public static void closeConnection(){

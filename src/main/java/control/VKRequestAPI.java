@@ -87,7 +87,8 @@ public class VKRequestAPI {
             e.printStackTrace();
         }
         List<List<JsonObject>> infoObjects = new ArrayList<>();
-        for (JsonArray infoObjectArray : getInfoObjectArraysFromResponse(response)) {
+        final JsonArray finalResponse = response;
+        for (JsonArray infoObjectArray : getInfoObjectArraysFromResponse(finalResponse)) {
             infoObjects.add(getInfoObjectsFromInfoObjectArray(infoObjectArray));
         }
         return infoObjects;
@@ -99,30 +100,17 @@ public class VKRequestAPI {
         List<Future<JsonArray>> futureList = new ArrayList<>();
         for (JsonElement element :
                 response) {
-            Task<JsonArray> task = new Task<>() {
-                @Override
-                protected JsonArray call() {
-//                    System.out.println(element.getAsJsonObject().getAsJsonArray("items").isJsonNull());
-                    return element.getAsJsonObject().getAsJsonArray("items");
-                }
-            };
-            futureList.add((Future<JsonArray>) executorService.submit(task));
+            Callable<JsonArray> task = () -> element.getAsJsonObject().getAsJsonArray("items");
+            Future<JsonArray> future = executorService.submit(task);
+            futureList.add(future);
         }
-        int i = 0;
         for (Future<JsonArray> future : futureList) {
             try {
-                JsonArray array = future.get();
-                System.out.println(array == null);
-                InfoObjectArrays.add(array);
-                System.out.printf("Закончено потоков %d из %d \n", ++i, futureList.size());
+                InfoObjectArrays.add(future.get());
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
-//        for (JsonArray infoObjectArray : InfoObjectArrays) {
-//            System.out.println(infoObjectArray == null);
-//        }
-
         return InfoObjectArrays;
     }
 
@@ -130,16 +118,10 @@ public class VKRequestAPI {
         ExecutorService executorService = Executors.newCachedThreadPool();
         List<JsonObject> InfoObjects = new ArrayList<>();
         List<Future<JsonObject>> futureList = new ArrayList<>();
-//        System.out.println(infoObjectArray == null);
-        for (JsonElement InfoObject :
-                infoObjectArray) {
-            Task<JsonObject> task = new Task<>() {
-                @Override
-                protected JsonObject call() {
-                    return InfoObject.getAsJsonObject();
-                }
-            };
-            futureList.add((Future<JsonObject>) executorService.submit(task));
+        for (JsonElement InfoObject : infoObjectArray) {
+            Callable<JsonObject> task = () -> InfoObject.getAsJsonObject();
+            Future<JsonObject> future = executorService.submit(task);
+            futureList.add(future);
         }
         for (Future<JsonObject> future : futureList) {
             try {

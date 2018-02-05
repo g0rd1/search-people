@@ -19,6 +19,7 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root, 1000, 800));
         primaryStage.setResizable(false);
         primaryStage.show();
+//        primaryStage.alwaysOnTopProperty();
         primaryStage.setOnCloseRequest(event -> DatabaseController.closeConnection());
     }
 
