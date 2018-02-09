@@ -41,13 +41,13 @@ public class Controller implements Initializable {
         return button1;
     }
 
-    final int GROUP_COUNT_TO_RECORD = 5;
+    final int GROUP_COUNT_TO_RECORD = 1;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         button1.setVisible(false);
         DatabaseController.initializeDatabase();
-        VKAuthorizationAPI.initializeVKAPI(this);
+        VK.initializeVKAPI(this);
     }
 
     public void UpdateData(MouseEvent mouseEvent) {
@@ -58,33 +58,31 @@ public class Controller implements Initializable {
                 ProgressBar1.setProgress(0);
                 DatabaseController.deleteTable();
                 DatabaseController.createTable();
-                List<Integer> groupsIds = VKRequestAPI.getUserGroupsIds(0, GROUP_COUNT_TO_RECORD);
-                for (int groupId : groupsIds) {
-                    insertRecordInDataBase(String.valueOf(groupId));
+                List<Group> groups = VKRequestAPI.getUserGroups(0, GROUP_COUNT_TO_RECORD);
+                for (Group group : groups) {
+                    insertRecordInDataBase(group);
                     final int finalRecordedGroupCount = recordedGroupCount++;
                     ProgressBar1.setProgress((float) finalRecordedGroupCount / (float) GROUP_COUNT_TO_RECORD);
                     AnchorPane.requestLayout();
                 }
-                ProgressBar1.setProgress(0);
+                ProgressBar1.setProgress(100);
                 return null;
             }
         };
         Thread thread = new Thread(task);
         thread.start();
-//        thread.join();
     }
 
-    public void insertRecordInDataBase(final String groupId){
-        final Integer groupMembersCount = VKRequestAPI.getGroupMembersCount(String.valueOf(groupId));
+    public void insertRecordInDataBase(final Group group){
         ProgressBar2.setProgress(0);
-        for (int offset = 0; offset < groupMembersCount; offset+=25000) {
+        for (int offset = 0; offset < group.getMembersCount(); offset+=25000) {
             final int finalOffset = offset;
-            final List<List<JsonObject>> InfoObjects = VKRequestAPI.getGroupMembersInfoObjects(finalOffset, groupId);
-            DatabaseController.insertAll(InfoObjects, groupId);
-            ProgressBar2.setProgress((float) finalOffset / (float) groupMembersCount);
+            final List<List<JsonObject>> InfoObjects = VKRequestAPI.getGroupMembersInfoObjects(finalOffset, group.getId());
+            DatabaseController.insertAll(InfoObjects, group.getId());
+            ProgressBar2.setProgress((float) finalOffset / (float) group.getMembersCount());
             AnchorPane.requestLayout();
         }
-        ProgressBar2.setProgress(0);
+        ProgressBar2.setProgress(100);
     }
 
 }

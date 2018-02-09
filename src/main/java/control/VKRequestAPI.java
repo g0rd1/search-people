@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
-import javafx.concurrent.Task;
+import model.Group;
 import model.VK;
 
 import java.util.ArrayList;
@@ -14,18 +14,27 @@ import java.util.concurrent.*;
 
 public class VKRequestAPI {
 
-    public static List<Integer> getUserGroupsIds(final int offset, final int count) {
+    public static List<Group> getUserGroups(final int offset, final int count) {
+        List<Group> userGroups = new ArrayList<>();
         try {
-            return VK.getVk().groups().get(VK.getUserActor()).offset(offset).count(count).execute().getItems();
+            final String code = "return API.groups.get({\"extended\": true, \"fields\": \"members_count\", \"offset\": 0, \"count\": 1000});";
+            final JsonObject response = VK.getVk().execute().code(VK.setUserActor(), code).execute().getAsJsonObject();
+            final JsonArray items = response.getAsJsonArray("items");
+            for (JsonElement element : items) {
+                final String id = String.valueOf(element.getAsJsonObject().get("id").getAsInt());
+                final int membersCount = element.getAsJsonObject().get("members_count").getAsInt();
+                userGroups.add(new Group(id, membersCount));
+            }
         } catch (ApiException | ClientException e) {
             System.err.println("Ошибка при запросе id групп пользователя");
             return null;
         }
+        return userGroups;
     }
 
     public static Integer getUserGroupsCount() {
         try {
-            return VK.getVk().groups().get(VK.getUserActor()).execute().getCount();
+            return VK.getVk().groups().get(VK.setUserActor()).execute().getCount();
         } catch (ApiException | ClientException e) {
             System.err.println("Ошибка при запросе количества групп пользователя");
             return null;
@@ -43,7 +52,7 @@ public class VKRequestAPI {
 
     public static int getGroupMembersCount(final String groupId) {
         try {
-            return VK.getVk().groups().getMembers(VK.getUserActor()).groupId(groupId).execute().getCount();
+            return VK.getVk().groups().getMembers(VK.setUserActor()).groupId(groupId).execute().getCount();
         } catch (ApiException | ClientException e) {
             System.err.println("Ошибка при запросе количества членов группы");
             return 0;
@@ -65,7 +74,7 @@ public class VKRequestAPI {
 //        sb.append("return b;");
 //        String code = sb.toString();
 //        System.out.println(code);
-//        JsonArray result = VK.getVk().execute().code(VK.getUserActor(), code).execute().getAsJsonArray();
+//        JsonArray result = VK.getVk().execute().code(VK.setUserActor(), code).execute().getAsJsonArray();
 //        for (JsonElement element :
 //                result) {
 //            JsonArray array = element.getAsJsonObject().getAsJsonArray("items");
@@ -79,24 +88,24 @@ public class VKRequestAPI {
 //    }
 
     public static List<List<JsonObject>> getGroupMembersInfoObjects(final int offset, final String groupId) {
-        String code = codeBuilder(offset, groupId);
+        String code = buildCodeToGetMemebers(offset, groupId);
         JsonArray response = null;
         try {
-            response = VK.getVk().execute().code(VK.getUserActor(), code).execute().getAsJsonArray();
+            response = VK.getVk().execute().code(VK.setUserActor(), code).execute().getAsJsonArray();
         } catch (ApiException | ClientException e) {
             e.printStackTrace();
         }
         List<List<JsonObject>> infoObjects = new ArrayList<>();
         final JsonArray finalResponse = response;
-        for (JsonArray infoObjectArray : getInfoObjectArraysFromResponse(finalResponse)) {
+        for (JsonArray infoObjectArray : getItemsArraysFromResponse(finalResponse)) {
             infoObjects.add(getInfoObjectsFromInfoObjectArray(infoObjectArray));
         }
         return infoObjects;
     }
 
-    private static List<JsonArray> getInfoObjectArraysFromResponse(final JsonArray response) {
+    private static List<JsonArray> getItemsArraysFromResponse(final JsonArray response) {
         ExecutorService executorService = Executors.newCachedThreadPool();
-        List<JsonArray> InfoObjectArrays = new ArrayList<>();
+        List<JsonArray> ItemsArrays = new ArrayList<>();
         List<Future<JsonArray>> futureList = new ArrayList<>();
         for (JsonElement element :
                 response) {
@@ -106,12 +115,12 @@ public class VKRequestAPI {
         }
         for (Future<JsonArray> future : futureList) {
             try {
-                InfoObjectArrays.add(future.get());
+                ItemsArrays.add(future.get());
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
-        return InfoObjectArrays;
+        return ItemsArrays;
     }
 
     private static List<JsonObject> getInfoObjectsFromInfoObjectArray(final JsonArray infoObjectArray) {
@@ -133,7 +142,7 @@ public class VKRequestAPI {
         return InfoObjects;
     }
 
-    private static String codeBuilder(final int offset, final String groupId) {
+    private static String buildCodeToGetMemebers(final int offset, final String groupId) {
         StringBuilder sb = new StringBuilder();
         sb.append("var a, i, offset, b=[]; ");
         sb.append("i=0; ");
