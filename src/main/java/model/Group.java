@@ -12,7 +12,6 @@ public class Group {
     }
 
     public String getId() {
-
         return Id;
     }
 

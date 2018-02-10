@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.web.WebView?>
 
-<AnchorPane fx:id="AnchorPane" maxHeight="800.0" maxWidth="1000.0" minHeight="800.0" minWidth="1000.0" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="control.Controller">
+<AnchorPane fx:id="AnchorPane" maxHeight="800.0" maxWidth="1000.0" minHeight="800.0" minWidth="1000.0" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="control.ViewController">
    <children>
       <Button fx:id="button1" layoutX="70.0" layoutY="486.0" mnemonicParsing="false" onMouseClicked="#UpdateData" text="Обновить данные" />
       <WebView fx:id="webView1" layoutX="14.0" layoutY="15.0" prefHeight="364.0" prefWidth="972.0" />

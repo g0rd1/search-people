@@ -18,7 +18,7 @@ public class VKRequestAPI {
         List<Group> userGroups = new ArrayList<>();
         try {
             final String code = "return API.groups.get({\"extended\": true, \"fields\": \"members_count\", \"offset\": 0, \"count\": 1000});";
-            final JsonObject response = VK.getVk().execute().code(VK.setUserActor(), code).execute().getAsJsonObject();
+            final JsonObject response = VK.getVk().execute().code(VK.getUserActor(), code).execute().getAsJsonObject();
             final JsonArray items = response.getAsJsonArray("items");
             for (JsonElement element : items) {
                 final String id = String.valueOf(element.getAsJsonObject().get("id").getAsInt());
@@ -34,7 +34,7 @@ public class VKRequestAPI {
 
     public static Integer getUserGroupsCount() {
         try {
-            return VK.getVk().groups().get(VK.setUserActor()).execute().getCount();
+            return VK.getVk().groups().get(VK.getUserActor()).execute().getCount();
         } catch (ApiException | ClientException e) {
             System.err.println("Ошибка при запросе количества групп пользователя");
             return null;
@@ -52,7 +52,7 @@ public class VKRequestAPI {
 
     public static int getGroupMembersCount(final String groupId) {
         try {
-            return VK.getVk().groups().getMembers(VK.setUserActor()).groupId(groupId).execute().getCount();
+            return VK.getVk().groups().getMembers(VK.getUserActor()).groupId(groupId).execute().getCount();
         } catch (ApiException | ClientException e) {
             System.err.println("Ошибка при запросе количества членов группы");
             return 0;
@@ -91,7 +91,7 @@ public class VKRequestAPI {
         String code = buildCodeToGetMemebers(offset, groupId);
         JsonArray response = null;
         try {
-            response = VK.getVk().execute().code(VK.setUserActor(), code).execute().getAsJsonArray();
+            response = VK.getVk().execute().code(VK.getUserActor(), code).execute().getAsJsonArray();
         } catch (ApiException | ClientException e) {
             e.printStackTrace();
         }

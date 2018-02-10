@@ -1,11 +1,8 @@
 package control;
 
 import com.google.gson.JsonObject;
-import javafx.concurrent.Task;
-import model.Base;
+import model.Database;
 import model.User;
-import org.hsqldb.Database;
-import org.hsqldb.Table;
 
 import java.io.File;
 import java.sql.*;
@@ -13,16 +10,12 @@ import java.util.List;
 
 public class DatabaseController {
 
-    private static Connection connection = Base.getConnection();
-    private static Table table = Base.getTable();
-    private static Database database = Base.getDatabase();
-
     public static void initializeDatabase() {
 
         final String curDir = new File("").getAbsolutePath();
         final String URL = "jdbc:hsqldb:file:" + curDir + "\\src\\main\\resources\\base\\base";
         try {
-            connection = DriverManager.getConnection(URL, "SA", "");
+            Database.setConnection(DriverManager.getConnection(URL, "SA", ""));
         } catch (SQLException e) {
             System.err.println("Ошибка при подключении к базе данных!");
         }
@@ -31,7 +24,7 @@ public class DatabaseController {
 
     public static boolean isTableExist() {
         try {
-            connection.createStatement().execute("SELECT * FROM PUBLIC.USER");
+            Database.getConnection().createStatement().execute("SELECT * FROM PUBLIC.USER");
             return true;
         } catch (SQLException e) {
             return false;
@@ -44,7 +37,7 @@ public class DatabaseController {
             return;
         }
         try {
-            connection.createStatement().execute("CREATE TABLE USER(USER_ID int not null, " +
+            Database.getConnection().createStatement().execute("CREATE TABLE USER(USER_ID int not null, " +
                                                                         "GROUP_ID varchar(40) not null, " +
                                                                         "BIRTH_DATE date, " +
                                                                         "CITY varchar(40)," +
@@ -63,7 +56,7 @@ public class DatabaseController {
             return;
         }
         try {
-            connection.createStatement().execute("DROP TABLE PUBLIC.USER");
+            Database.getConnection().createStatement().execute("DROP TABLE PUBLIC.USER");
         } catch (SQLException e) {
             System.err.println("Ошибка при удалении таблицы в базе данных!");
         }
@@ -71,7 +64,7 @@ public class DatabaseController {
 
     public static void insertRecord(final User user, final String groupId) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO PUBLIC.USER (USER_ID, " +
+            PreparedStatement preparedStatement = Database.getConnection().prepareStatement("INSERT INTO PUBLIC.USER (USER_ID, " +
                                                                                                             "GROUP_ID, " +
                                                                                                             "BIRTH_DATE, " +
                                                                                                             "CITY, " +
@@ -107,7 +100,7 @@ public class DatabaseController {
 
     public static void closeConnection(){
         try {
-            connection.close();
+            Database.getConnection().close();
         } catch (SQLException e) {
             System.err.println("Ошибка при попытки закрытия соединения с базой данных!");
         }
