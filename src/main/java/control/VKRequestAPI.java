@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 public class VKRequestAPI {
 
-    public static List<Group> getUserGroups(final int offset, final int count) {
+    public static List<Group> getUserGroups(final int offset, final int count){
         List<Group> userGroups = new ArrayList<>();
         try {
             final String code = "return API.groups.get({\"extended\": true, \"fields\": \"members_count\", \"offset\": 0, \"count\": 1000});";
@@ -104,40 +104,18 @@ public class VKRequestAPI {
     }
 
     private static List<JsonArray> getItemsArraysFromResponse(final JsonArray response) {
-        ExecutorService executorService = Executors.newCachedThreadPool();
         List<JsonArray> ItemsArrays = new ArrayList<>();
-        List<Future<JsonArray>> futureList = new ArrayList<>();
         for (JsonElement element :
                 response) {
-            Callable<JsonArray> task = () -> element.getAsJsonObject().getAsJsonArray("items");
-            Future<JsonArray> future = executorService.submit(task);
-            futureList.add(future);
-        }
-        for (Future<JsonArray> future : futureList) {
-            try {
-                ItemsArrays.add(future.get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            ItemsArrays.add(element.getAsJsonObject().getAsJsonArray("items"));
         }
         return ItemsArrays;
     }
 
     private static List<JsonObject> getInfoObjectsFromInfoObjectArray(final JsonArray infoObjectArray) {
-        ExecutorService executorService = Executors.newCachedThreadPool();
         List<JsonObject> InfoObjects = new ArrayList<>();
-        List<Future<JsonObject>> futureList = new ArrayList<>();
         for (JsonElement InfoObject : infoObjectArray) {
-            Callable<JsonObject> task = () -> InfoObject.getAsJsonObject();
-            Future<JsonObject> future = executorService.submit(task);
-            futureList.add(future);
-        }
-        for (Future<JsonObject> future : futureList) {
-            try {
-                InfoObjects.add(future.get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            InfoObjects.add(InfoObject.getAsJsonObject());
         }
         return InfoObjects;
     }
