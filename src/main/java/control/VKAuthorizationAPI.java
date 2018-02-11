@@ -9,6 +9,7 @@ import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.UserAuthResponse;
 import javafx.scene.web.WebEngine;
 import model.VK;
+import model.View;
 
 public class VKAuthorizationAPI {
 
@@ -22,9 +23,9 @@ public class VKAuthorizationAPI {
 
     private static final String REDIRECT_URI = "";
 
-    public static void initializeVKAPI(final WebEngine engine) {
+    public static void initializeVKAPI() {
         setVkApiClient();
-        setUserActor(engine);
+        setUserActor();
     }
 
     private static void setVkApiClient() {
@@ -32,8 +33,9 @@ public class VKAuthorizationAPI {
         VK.setVk(new VkApiClient(transportClient));
     }
 
-    private static void setUserActor(final WebEngine engine) {
+    private static void setUserActor() {
         final ViewController controller = new ViewController();
+        WebEngine engine = ViewController.getWebEngine();
         engine.load(VK_AUTH_URL);
 
         engine.locationProperty().addListener((observable, oldValue, newValue) -> {
@@ -57,8 +59,8 @@ public class VKAuthorizationAPI {
                     e.printStackTrace();
                 }
 
-                controller.setWebView1Visible(false);
-                controller.setButton1Visible(false);
+                ViewController.setWebView1Visible(false);
+                ViewController.setButton1Visible(false);
             }
         });
     }

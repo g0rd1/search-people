@@ -7,6 +7,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import model.View;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
@@ -20,38 +22,36 @@ public class ViewController implements Initializable {
     private Button button1;
 
     @FXML
-    private ProgressBar ProgressBar1;
+    private ProgressBar progressBar1;
 
     @FXML
-    private ProgressBar ProgressBar2;
+    private ProgressBar progressBar2;
 
-    private WebEngine webEngine;
-
-    public void setButton1Visible(final boolean visible) {
-        button1.setVisible(visible);
+    public static void setButton1Visible(final boolean visible) {
+        View.getButton1().setVisible(visible);
     }
 
-    public void setWebView1Visible(final boolean visible) {
-        webView1.setVisible(visible);
+    public static void setWebView1Visible(final boolean visible) {
+        View.getWebView1().setVisible(visible);
     }
 
-    public void setProgressBar1Progress(final float progress) {
-        ProgressBar1.setProgress(progress);
+    public static void setProgressBar1Progress(final float progress) {
+        View.getProgressBar1().setProgress(progress);
     }
 
-    public void setProgressBar2Progress(final float progress) {
-        ProgressBar2.setProgress(progress);
+    public static void setProgressBar2Progress(final float progress) {
+        View.getProgressBar2().setProgress(progress);
     }
 
-    public WebEngine getWebEngine() {
-        return webEngine;
+    public static WebEngine getWebEngine() {
+        return View.getWebView1().getEngine();
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        button1.setVisible(false);
+        initializeView();
         DatabaseController.initializeDatabase();
-        VKAuthorizationAPI.initializeVKAPI(webView1.getEngine());
+        VKAuthorizationAPI.initializeVKAPI();
     }
 
     public void UpdateData() {
@@ -64,6 +64,13 @@ public class ViewController implements Initializable {
         };
         Thread thread = new Thread(task);
         thread.start();
+    }
+
+    private void initializeView() {
+        View.setWebView1(webView1);
+        View.setButton1(button1);
+        View.setProgressBar1(progressBar1);
+        View.setProgressBar2(progressBar2);
     }
 
 }
