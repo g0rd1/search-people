@@ -90,7 +90,7 @@ public class DatabaseController {
         for (List<JsonObject> objectList : infoObjects) {
             for (JsonObject infoObject : objectList) {
                 try {
-                    insertRecord(new User(infoObject), groupId);
+                    insertRecord(User.parseInfoObject(infoObject), groupId);
                 } catch (Exception e) {
                     System.err.println("Ошибка при преобразовании InfoObject в User");
                 }

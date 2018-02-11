@@ -32,52 +32,53 @@ public class User {
 
         }
 
-        public User(final JsonObject item) throws Exception {
+        public static User parseInfoObject(final JsonObject infoObject) throws Exception{
 
-                if (item.getAsJsonPrimitive("id") != null) {
-                        userId = item.getAsJsonPrimitive("id").getAsInt();
-                } else {
-                        throw new Exception("Ошибка при получении id пользователя");
+            UserBuilder ub = new UserBuilder();
+
+            if (infoObject.getAsJsonPrimitive("id") != null) {
+                ub.setUserId(infoObject.getAsJsonPrimitive("id").getAsInt());
+            } else {
+                throw new Exception("Ошибка при получении id пользователя");
+            }
+
+            if (infoObject.getAsJsonObject("city") != null) {
+                ub.setCity(infoObject.getAsJsonObject("city").getAsJsonPrimitive("title").getAsString());
+            } else {
+                ub.setCity(null);
+            }
+
+            if (infoObject.getAsJsonPrimitive("sex") != null) {
+                ub.setSex(infoObject.getAsJsonPrimitive("sex").getAsInt());
+            } else {
+                throw new Exception("Ошибка при получении пола пользователя");
+            }
+
+            if (infoObject.getAsJsonPrimitive("first_name") != null) {
+                ub.setFirstName(infoObject.getAsJsonPrimitive("first_name").getAsString());
+            } else {
+                throw new Exception("Ошибка при получении имени пользователя");
+            }
+
+            if (infoObject.getAsJsonPrimitive("last_name") != null) {
+                ub.setLastName(infoObject.getAsJsonPrimitive("last_name").getAsString());
+            } else {
+                throw new Exception("Ошибка при получении фамилии пользователя");
+            }
+
+            if (infoObject.getAsJsonPrimitive("bdate") != null) {
+                try {
+                    SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+                    java.util.Date tempDate = format.parse(infoObject.getAsJsonPrimitive("bdate").getAsString());
+                    ub.setBirthDate(new Date(tempDate.getTime()));
+                } catch (ParseException e) {
+                    ub.setBirthDate(null);
                 }
+            } else {
+                ub.setBirthDate(null);
+            }
 
-                if (item.getAsJsonObject("city") != null) {
-                        city = item.getAsJsonObject("city").getAsJsonPrimitive("title").getAsString();
-                } else {
-                        city = null;
-                }
-
-                if (item.getAsJsonPrimitive("sex") != null) {
-                        sex = item.getAsJsonPrimitive("sex").getAsInt();
-                } else {
-                        throw new Exception("Ошибка при получении пола пользователя");
-                }
-
-                if (item.getAsJsonPrimitive("first_name") != null) {
-                        firstName = item.getAsJsonPrimitive("first_name").getAsString();
-                } else {
-                        throw new Exception("Ошибка при получении имени пользователя");
-                }
-
-                if (item.getAsJsonPrimitive("last_name") != null) {
-                        lastName = item.getAsJsonPrimitive("last_name").getAsString();
-                } else {
-                        throw new Exception("Ошибка при получении фамилии пользователя");
-                }
-
-                if (item.getAsJsonPrimitive("bdate") != null) {
-                        try {
-                                SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-                                java.util.Date tempDate = format.parse(item.getAsJsonPrimitive("bdate").getAsString());
-                                birthDate = new Date(tempDate.getTime());
-                        } catch (ParseException e) {
-                                birthDate = null;
-//                                System.out.println(item.getAsJsonPrimitive("bdate").getAsString());
-//                                System.err.println("Ошибка при получении дня рождения пользователя");
-                        }
-                } else {
-                        birthDate = null;
-                }
-
+            return ub.build();
         }
 
         public int getUserId() {

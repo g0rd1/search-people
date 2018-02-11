@@ -22,9 +22,9 @@ public class VKAuthorizationAPI {
 
     private static final String REDIRECT_URI = "";
 
-    public static void initializeVKAPI() {
+    public static void initializeVKAPI(final WebEngine engine) {
         setVkApiClient();
-        setUserActor();
+        setUserActor(engine);
     }
 
     private static void setVkApiClient() {
@@ -32,9 +32,8 @@ public class VKAuthorizationAPI {
         VK.setVk(new VkApiClient(transportClient));
     }
 
-    private static void setUserActor() {
+    private static void setUserActor(final WebEngine engine) {
         final ViewController controller = new ViewController();
-        final WebEngine engine = controller.getWebView1Engine();
         engine.load(VK_AUTH_URL);
 
         engine.locationProperty().addListener((observable, oldValue, newValue) -> {

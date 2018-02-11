@@ -1,21 +1,15 @@
 package control;
 
-import com.google.gson.JsonObject;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import model.*;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class ViewController implements Initializable {
 
@@ -30,6 +24,8 @@ public class ViewController implements Initializable {
 
     @FXML
     private ProgressBar ProgressBar2;
+
+    private WebEngine webEngine;
 
     public void setButton1Visible(final boolean visible) {
         button1.setVisible(visible);
@@ -47,15 +43,15 @@ public class ViewController implements Initializable {
         ProgressBar2.setProgress(progress);
     }
 
-    public WebEngine getWebView1Engine() {
-        return webView1.getEngine();
+    public WebEngine getWebEngine() {
+        return webEngine;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         button1.setVisible(false);
         DatabaseController.initializeDatabase();
-        VKAuthorizationAPI.initializeVKAPI();
+        VKAuthorizationAPI.initializeVKAPI(webView1.getEngine());
     }
 
     public void UpdateData() {

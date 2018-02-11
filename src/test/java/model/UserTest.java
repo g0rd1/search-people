@@ -29,7 +29,7 @@ public class UserTest {
         JsonObject jsonObject1 = new JsonParser().parse(json1).getAsJsonObject();
 
         try {
-            new User(jsonObject1);
+            User.parseInfoObject(jsonObject1);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -45,7 +45,7 @@ public class UserTest {
         System.out.println(json2);
         JsonObject jsonObject2 = new JsonParser().parse(json2).getAsJsonObject();
         try {
-            new User(jsonObject2);
+            User.parseInfoObject(jsonObject2);
         } catch (Exception e) {
             e.printStackTrace();
         }
