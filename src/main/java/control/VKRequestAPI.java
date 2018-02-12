@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class VKRequestAPI {
 
-    public static List<Group> getUserGroups(final int offset, final int count){
+    public static List<Group> getUserGroups(final int offset, final int count) {
         List<Group> userGroups = new ArrayList<>();
         try {
             final String code = buildCodeToGetGroups(offset, count);

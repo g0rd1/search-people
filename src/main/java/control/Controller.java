@@ -20,7 +20,7 @@ public class Controller {
     final static int CORE_POOL_SIZE = 16;
 
     final static float INITIAL_PROGRESS = 0;
-    
+
     static int delay = 0;
 
     public static void UpdateData() {
@@ -50,12 +50,12 @@ public class Controller {
         delay = 0;
     }
 
-    private static List<ScheduledFuture> getGroupFutureList(final Group group){
+    private static List<ScheduledFuture> getGroupFutureList(final Group group) {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(CORE_POOL_SIZE);
         List<ScheduledFuture> futureList = new ArrayList<>();
-        for (int i = 0;  i * GROUPS_PER_REQUEST < group.getMembersCount(); i++) {
+        for (int i = 0; i * GROUPS_PER_REQUEST < group.getMembersCount(); i++) {
             final int offset = i * GROUPS_PER_REQUEST;
-            delay+=REQUESTS_PERIOD;
+            delay += REQUESTS_PERIOD;
             Runnable task = () -> {
                 final List<List<JsonObject>> InfoObjects = VKRequestAPI.getGroupMembersInfoObjects(offset, group.getId());
                 DatabaseController.insertAll(InfoObjects, group.getId());

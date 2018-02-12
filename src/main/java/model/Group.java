@@ -22,7 +22,7 @@ public class Group {
         return membersCount;
     }
 
-    public static Group parseInfoObject(final JsonObject infoObject){
+    public static Group parseInfoObject(final JsonObject infoObject) {
 
         final String Id;
 

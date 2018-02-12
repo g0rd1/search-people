@@ -22,7 +22,7 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(event -> DatabaseController.closeConnection());
     }
 
-    public static void main (String[]args){
+    public static void main(String[] args) {
         launch(args);
     }
 
