@@ -46,4 +46,5 @@ public class View {
     public static void setProgressBar2(ProgressBar progressBar2) {
         View.progressBar2 = progressBar2;
     }
+
 }

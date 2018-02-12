@@ -26,7 +26,7 @@ public class VKRequestAPI {
                     userGroups.add(group);
                 }
             }
-            TimeUnit.MILLISECONDS.sleep(335);
+            TimeUnit.MILLISECONDS.sleep(335); // 3 запроса в секунду
             return userGroups;
         } catch (ApiException | ClientException e) {
             System.err.println("Ошибка при запросе получении групп пользователя");
@@ -35,61 +35,6 @@ public class VKRequestAPI {
         }
         return null;
     }
-
-    public static Integer getUserGroupsCount() {
-        try {
-            return VK.getVk().groups().get(VK.getUserActor()).execute().getCount();
-        } catch (ApiException | ClientException e) {
-            System.err.println("Ошибка при запросе количества групп пользователя");
-            return null;
-        }
-    }
-
-//    public static List<Integer> getGroupMembersId(final int offset, final int count, final String groupId){
-//        try {
-//            return vk.groups().getMembers(userActor).offset(offset).count(count).groupId(groupId).execute().getItems();
-//        } catch (ApiException | ClientException e) {
-//            System.err.println("Ошибка при запросе id членов группы");
-//            return null;
-//        }
-//    }
-
-    public static int getGroupMembersCount(final String groupId) {
-        try {
-            return VK.getVk().groups().getMembers(VK.getUserActor()).groupId(groupId).execute().getCount();
-        } catch (ApiException | ClientException e) {
-            System.err.println("Ошибка при запросе количества членов группы");
-            return 0;
-        }
-    }
-
-//    public static void testMethod() throws ClientException, ApiException {
-//        //42532708 - T403
-//        //22751485 - dvach
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("var a, i, offset, b=[]; ");
-//        sb.append("i=0; ");
-//        sb.append("offset=0; ");
-//        sb.append("while (i<25) {");
-//        sb.append("a=API.groups.getMembers({\"group_id\": 42532708, \"offset\": i*1000+offset*25000, \"count\": 1000, \"fields\": \"bdate\"}); ");
-//        sb.append("i=i+1; ");
-//        sb.append("b.push(a); ");
-//        sb.append("}");
-//        sb.append("return b;");
-//        String code = sb.toString();
-//        System.out.println(code);
-//        JsonArray result = VK.getVk().execute().code(VK.setUserActor(), code).execute().getAsJsonArray();
-//        for (JsonElement element :
-//                result) {
-//            JsonArray array = element.getAsJsonObject().getAsJsonArray("items");
-//            for (JsonElement item :
-//                    array) {
-//                int id = item.getAsJsonObject().getAsJsonPrimitive("id").getAsInt();
-//                System.out.println(id);
-//            }
-//        }
-//
-//    }
 
     public static List<List<JsonObject>> getGroupMembersInfoObjects(final int offset, final String groupId) {
         String code = buildCodeToGetMemebers(offset, groupId);

@@ -1,8 +1,9 @@
 package control;
 
 import com.google.gson.JsonObject;
-import javafx.scene.layout.AnchorPane;
+import javafx.application.Platform;
 import model.Group;
+import model.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,49 +15,55 @@ public class Controller {
 
     final static int GROUPS_PER_REQUEST = 25_000;
 
-    final static int REQUESTS_PERIOD = 400;
+    final static int REQUESTS_PERIOD = 350;
 
     final static int CORE_POOL_SIZE = 16;
 
     final static float INITIAL_PROGRESS = 0;
-
-    final static float COMPLETED_PROGRESS = 1;
+    
+    static int delay = 0;
 
     public static void UpdateData() {
-        int recordedGroupCount = 0;
-        ViewController.setProgressBar1Progress(COMPLETED_PROGRESS);
+        float generalProgress = 0;
+        float groupProgress = 0;
+        List<List<ScheduledFuture>> groupsFutureLists = new ArrayList<>();
         DatabaseController.deleteTable();
         DatabaseController.createTable();
         List<Group> groups = VKRequestAPI.getUserGroups(0, GROUP_COUNT_TO_RECORD);
         for (Group group : groups) {
-            insertRecordInDataBase(group);
-            ViewController.setProgressBar1Progress((float) ++recordedGroupCount / (float) GROUP_COUNT_TO_RECORD);
+            groupsFutureLists.add(getGroupFutureList(group));
         }
-        ViewController.setProgressBar1Progress(1);
+        ViewController.setProgressBar1Progress(INITIAL_PROGRESS);
+        for (List<ScheduledFuture> groupFutureList : groupsFutureLists) {
+            ViewController.setProgressBar2Progress(INITIAL_PROGRESS);
+            for (ScheduledFuture future : groupFutureList) {
+                try {
+                    future.get();
+                    ViewController.setProgressBar2Progress(++groupProgress / (float) groupFutureList.size());
+                } catch (InterruptedException | ExecutionException e) {
+                    System.err.println("Ошибка в работе потока");
+                }
+            }
+            groupProgress = 0;
+            ViewController.setProgressBar1Progress(++generalProgress / (float) groupsFutureLists.size());
+        }
+        delay = 0;
     }
 
-    private static void insertRecordInDataBase(final Group group){
+    private static List<ScheduledFuture> getGroupFutureList(final Group group){
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(CORE_POOL_SIZE);
-        List<ScheduledFuture<List<List<JsonObject>>>> futureList = new ArrayList<>();
-        ViewController.setProgressBar2Progress(INITIAL_PROGRESS);
+        List<ScheduledFuture> futureList = new ArrayList<>();
         for (int i = 0;  i * GROUPS_PER_REQUEST < group.getMembersCount(); i++) {
             final int offset = i * GROUPS_PER_REQUEST;
-            final int delay = i * REQUESTS_PERIOD;
-            Callable task = () -> VKRequestAPI.getGroupMembersInfoObjects(offset, group.getId());
-            ScheduledFuture<List<List<JsonObject>>> scheduledFuture = executorService.schedule(task, delay, TimeUnit.MILLISECONDS);
+            delay+=REQUESTS_PERIOD;
+            Runnable task = () -> {
+                final List<List<JsonObject>> InfoObjects = VKRequestAPI.getGroupMembersInfoObjects(offset, group.getId());
+                DatabaseController.insertAll(InfoObjects, group.getId());
+            };
+            ScheduledFuture scheduledFuture = executorService.schedule(task, delay, TimeUnit.MILLISECONDS);
             futureList.add(scheduledFuture);
         }
-        for (ScheduledFuture<List<List<JsonObject>>>  future : futureList) {
-            try {
-                final List<List<JsonObject>> InfoObjects = future.get();
-                DatabaseController.insertAll(InfoObjects, group.getId());
-            } catch (InterruptedException | ExecutionException e) {
-                System.err.println("Ошибка при получении списка с списком объектов из потока");
-            } finally {
-                executorService.shutdown();
-            }
-        }
-        ViewController.setProgressBar2Progress(COMPLETED_PROGRESS);
+        return futureList;
     }
 
 }

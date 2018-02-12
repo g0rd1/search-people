@@ -15,7 +15,7 @@ public class User {
 
         private String city;
 
-        private int sex;
+    private int sex;
 
         private String firstName;
 
@@ -154,5 +154,18 @@ public class User {
                 }
 
         }
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", birthDate=" + birthDate +
+                ", city='" + city + '\'' +
+                ", sex=" + sex +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                '}';
+    }
 
 }
