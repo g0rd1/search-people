@@ -10,26 +10,23 @@ import model.VK;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
 public class VKRequestAPI {
 
     public static List<Group> getUserGroups(final int offset, final int count){
         List<Group> userGroups = new ArrayList<>();
         try {
-            final String code = "return API.groups.get({\"extended\": true, \"fields\": \"members_count\", \"offset\": 0, \"count\": 1000});";
+            final String code = buildCodeToGetGroups(offset, count);
             final JsonObject response = VK.getVk().execute().code(VK.getUserActor(), code).execute().getAsJsonObject();
             final JsonArray items = response.getAsJsonArray("items");
             for (JsonElement element : items) {
-                final String id = String.valueOf(element.getAsJsonObject().get("id").getAsInt());
-                final int membersCount = element.getAsJsonObject().get("members_count").getAsInt();
-                userGroups.add(new Group(id, membersCount));
+                userGroups.add(Group.parseInfoObject(element.getAsJsonObject()));
             }
+            return userGroups;
         } catch (ApiException | ClientException e) {
             System.err.println("Ошибка при запросе id групп пользователя");
             return null;
         }
-        return userGroups;
     }
 
     public static Integer getUserGroupsCount() {
@@ -138,4 +135,13 @@ public class VKRequestAPI {
         return sb.toString();
     }
 
+    private static String buildCodeToGetGroups(final int offset, final int count) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("return API.groups.get({\"extended\": true, \"fields\": \"members_count\", \"offset\": ");
+        sb.append(offset);
+        sb.append(", \"count\": ");
+        sb.append(count);
+        sb.append("});");
+        return sb.toString();
+    }
 }

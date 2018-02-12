@@ -60,7 +60,7 @@ public class VKAuthorizationAPI {
                 }
 
                 ViewController.setWebView1Visible(false);
-                ViewController.setButton1Visible(false);
+                ViewController.setButton1Visible(true);
             }
         });
     }

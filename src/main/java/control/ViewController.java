@@ -55,6 +55,7 @@ public class ViewController implements Initializable {
     }
 
     public void UpdateData() {
+        ViewController.setButton1Visible(false);
         Task task = new Task() {
             @Override
             protected Object call() {
