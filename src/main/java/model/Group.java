@@ -24,19 +24,27 @@ public class Group {
 
     public static Group parseInfoObject(final JsonObject infoObject){
 
-        final String Id = String.valueOf(infoObject.getAsJsonObject().get("id").getAsInt());
+        final String Id;
+
+        final int membersCount;
 
         final JsonElement jsonMembersCount = infoObject.getAsJsonObject().get("members_count");
 
-        final int membersCount;
+        final JsonElement jsonId = infoObject.getAsJsonObject().get("id");
 
         if (jsonMembersCount != null) {
             membersCount = jsonMembersCount.getAsInt();
         } else {
-            membersCount = 0;
+            return null;
         }
 
-        return new Group(String.valueOf(Id), membersCount);
+        if (jsonId != null) {
+            Id = String.valueOf(jsonId.getAsInt());
+        } else {
+            return null;
+        }
+
+        return new Group(Id, membersCount);
 
     }
 

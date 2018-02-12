@@ -31,20 +31,20 @@ public class DatabaseController {
         }
     }
 
-    public static void createTable () {
+    public static void createTable() {
         if (isTableExist()) {
             System.err.println("Создание не было произведено, так как таблица уже существует");
             return;
         }
         try {
             Database.getConnection().createStatement().execute("CREATE TABLE USER(USER_ID int not null, " +
-                                                                        "GROUP_ID varchar(40) not null, " +
-                                                                        "BIRTH_DATE date, " +
-                                                                        "CITY varchar(40)," +
-                                                                        "SEX int," +
-                                                                        "FIRST_NAME varchar(40)," +
-                                                                        "LAST_NAME varchar(40)" +
-                                                                        ");");
+                    "GROUP_ID varchar(40) not null, " +
+                    "BIRTH_DATE date, " +
+                    "CITY varchar(40)," +
+                    "SEX int," +
+                    "FIRST_NAME varchar(40)," +
+                    "LAST_NAME varchar(40)" +
+                    ");");
         } catch (SQLException e) {
             System.err.println("Ошибка при создании таблицы в базе данных!");
         }
@@ -64,14 +64,15 @@ public class DatabaseController {
 
     public static synchronized void insertRecord(final User user, final String groupId) {
         try {
-            PreparedStatement preparedStatement = Database.getConnection().prepareStatement("INSERT INTO PUBLIC.USER (USER_ID, " +
-                                                                                                            "GROUP_ID, " +
-                                                                                                            "BIRTH_DATE, " +
-                                                                                                            "CITY, " +
-                                                                                                            "SEX, " +
-                                                                                                            "FIRST_NAME, " +
-                                                                                                            "LAST_NAME) " +
-                                                                                    "VALUES (?, ?, ?, ?, ?, ?, ?);");
+            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(
+                    "INSERT INTO PUBLIC.USER (USER_ID, " +
+                            "GROUP_ID, " +
+                            "BIRTH_DATE, " +
+                            "CITY, " +
+                            "SEX, " +
+                            "FIRST_NAME, " +
+                            "LAST_NAME) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?);");
             preparedStatement.setInt(1, user.getUserId());
             preparedStatement.setString(2, groupId);
             preparedStatement.setDate(3, user.getBirthDate());
@@ -86,7 +87,7 @@ public class DatabaseController {
         }
     }
 
-    public static synchronized void insertAll(final List<List<JsonObject>> infoObjects, final String groupId){
+    public static synchronized void insertAll(final List<List<JsonObject>> infoObjects, final String groupId) {
         for (List<JsonObject> objectList : infoObjects) {
             for (JsonObject infoObject : objectList) {
                 try {
@@ -98,7 +99,7 @@ public class DatabaseController {
         }
     }
 
-    public static void closeConnection(){
+    public static void closeConnection() {
         try {
             Database.getConnection().close();
         } catch (SQLException e) {

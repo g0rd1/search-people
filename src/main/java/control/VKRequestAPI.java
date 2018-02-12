@@ -10,6 +10,7 @@ import model.VK;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class VKRequestAPI {
 
@@ -20,13 +21,19 @@ public class VKRequestAPI {
             final JsonObject response = VK.getVk().execute().code(VK.getUserActor(), code).execute().getAsJsonObject();
             final JsonArray items = response.getAsJsonArray("items");
             for (JsonElement element : items) {
-                userGroups.add(Group.parseInfoObject(element.getAsJsonObject()));
+                final Group group = Group.parseInfoObject(element.getAsJsonObject());
+                if (group != null) {
+                    userGroups.add(group);
+                }
             }
+            TimeUnit.MILLISECONDS.sleep(335);
             return userGroups;
         } catch (ApiException | ClientException e) {
-            System.err.println("Ошибка при запросе id групп пользователя");
-            return null;
+            System.err.println("Ошибка при запросе получении групп пользователя");
+        } catch (InterruptedException e) {
+            System.err.println("Ошибка при ожидании");
         }
+        return null;
     }
 
     public static Integer getUserGroupsCount() {

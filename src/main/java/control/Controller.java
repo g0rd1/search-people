@@ -16,7 +16,7 @@ public class Controller {
 
     final static int REQUESTS_PERIOD = 400;
 
-    final static int CORE_POOL_SIZE = 8;
+    final static int CORE_POOL_SIZE = 16;
 
     final static float INITIAL_PROGRESS = 0;
 
