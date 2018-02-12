@@ -62,7 +62,7 @@ public class DatabaseController {
         }
     }
 
-    public static void insertRecord(final User user, final String groupId) {
+    public static synchronized void insertRecord(final User user, final String groupId) {
         try {
             PreparedStatement preparedStatement = Database.getConnection().prepareStatement("INSERT INTO PUBLIC.USER (USER_ID, " +
                                                                                                             "GROUP_ID, " +
@@ -86,7 +86,7 @@ public class DatabaseController {
         }
     }
 
-    public static void insertAll(final List<List<JsonObject>> infoObjects, final String groupId){
+    public static synchronized void insertAll(final List<List<JsonObject>> infoObjects, final String groupId){
         for (List<JsonObject> objectList : infoObjects) {
             for (JsonObject infoObject : objectList) {
                 try {
