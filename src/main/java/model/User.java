@@ -15,6 +15,8 @@ public class User {
 
         private String city;
 
+        final private static int MAX_LENGTH = 40;
+
     private int sex;
 
         private String firstName;
@@ -55,13 +57,23 @@ public class User {
             }
 
             if (infoObject.getAsJsonPrimitive("first_name") != null) {
-                ub.setFirstName(infoObject.getAsJsonPrimitive("first_name").getAsString());
+                final String firstName = infoObject.getAsJsonPrimitive("first_name").getAsString();
+                if (firstName.length() > MAX_LENGTH) {
+                    ub.setFirstName(firstName.substring(0, MAX_LENGTH));
+                } else {
+                    ub.setFirstName(firstName);
+                }
             } else {
                 throw new Exception("Ошибка при получении имени пользователя");
             }
 
             if (infoObject.getAsJsonPrimitive("last_name") != null) {
-                ub.setLastName(infoObject.getAsJsonPrimitive("last_name").getAsString());
+                final String lastName = infoObject.getAsJsonPrimitive("last_name").getAsString();
+                if (lastName.length() > MAX_LENGTH) {
+                    ub.setLastName(lastName.substring(0, MAX_LENGTH));
+                } else {
+                    ub.setLastName(lastName);
+                }
             } else {
                 throw new Exception("Ошибка при получении фамилии пользователя");
             }
