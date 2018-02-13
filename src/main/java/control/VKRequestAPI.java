@@ -14,8 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 public class VKRequestAPI {
 
-    public static List<Group> getUserGroups(final int offset, final int count) {
+    public static List<Group> getUserGroups(final int count) {
         List<Group> userGroups = new ArrayList<>();
+        final int offset = 0;
         try {
             final String code = buildCodeToGetGroups(offset, count);
             final JsonObject response = VK.getVk().execute().code(VK.getUserActor(), code).execute().getAsJsonObject();
@@ -26,7 +27,7 @@ public class VKRequestAPI {
                     userGroups.add(group);
                 }
             }
-            TimeUnit.MILLISECONDS.sleep(335); // 3 запроса в секунду
+            TimeUnit.MILLISECONDS.sleep(350); // 3 запроса в секунду
             return userGroups;
         } catch (ApiException | ClientException e) {
             System.err.println("Ошибка при запросе получении групп пользователя");

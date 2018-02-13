@@ -45,7 +45,12 @@ public class User {
         }
 
         if (infoObject.getAsJsonObject("city") != null) {
-            ub.setCity(infoObject.getAsJsonObject("city").getAsJsonPrimitive("title").getAsString());
+            final String city = infoObject.getAsJsonObject("city").getAsJsonPrimitive("title").getAsString();
+            if (city.length() > MAX_LENGTH) {
+                ub.setCity(city.substring(0, MAX_LENGTH));
+            } else {
+                ub.setCity(city);
+            }
         } else {
             ub.setCity(null);
         }
@@ -166,7 +171,6 @@ public class User {
         }
 
     }
-
 
     @Override
     public String toString() {

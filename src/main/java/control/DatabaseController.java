@@ -83,6 +83,8 @@ public class DatabaseController {
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
+            System.out.println("groupId: " + groupId);
+            System.out.println(user.toString());
             System.err.println("Ошибка при записи данных в таблицу!");
         }
     }
