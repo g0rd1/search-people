@@ -11,17 +11,17 @@ import java.util.concurrent.*;
 
 public class Controller {
 
-    final static int GROUP_COUNT_TO_RECORD = 5;
+    private final static int GROUP_COUNT_TO_RECORD = 10;
 
-    final static int GROUPS_PER_REQUEST = 25_000;
+    private final static int GROUPS_PER_REQUEST = 25_000;
 
-    final static int REQUESTS_PERIOD = 350;
+    private final static int REQUESTS_PERIOD = 350;
 
-    final static int CORE_POOL_SIZE = 16;
+    private final static int CORE_POOL_SIZE = 16;
 
-    final static float INITIAL_PROGRESS = 0;
+    private final static float INITIAL_PROGRESS = 0;
 
-    static int delay = 0;
+    private static int delay = 0;
 
     public static void UpdateData() {
         float generalProgress = 0;
@@ -29,7 +29,7 @@ public class Controller {
         List<List<ScheduledFuture>> groupsFutureLists = new ArrayList<>();
         DatabaseController.deleteTable();
         DatabaseController.createTable();
-        List<Group> groups = VKRequestAPI.getUserGroups(0, GROUP_COUNT_TO_RECORD);
+        List<Group> groups = VKRequestAPI.getUserGroups(GROUP_COUNT_TO_RECORD);
         for (Group group : groups) {
             groupsFutureLists.add(getGroupFutureList(group));
         }
